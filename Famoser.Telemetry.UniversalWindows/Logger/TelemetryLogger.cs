@@ -133,12 +133,23 @@ namespace Famoser.Telemetry.UniversalWindows.Logger
             _instanceActive = false;
         }
 
+        public void SendEvent(string eve)
+        {
+            _posts.Enqueue(new[]
+            {
+                new KeyValuePair<string, string>("ContentType", EventContentType),
+                new KeyValuePair<string, string>("Event", eve)
+            });
+
+            PostWorker();
+        }
+
         private ConcurrentBag<LogModel> _logModels = new ConcurrentBag<LogModel>();
         private readonly ConcurrentQueue<KeyValuePair<string, string>[]> _posts = new ConcurrentQueue<KeyValuePair<string, string>[]>();
         public void AddLog(LogModel model)
         {
             _logModels.Add(model);
-            _restService.PostAsync(_url, new[]
+            _posts.Enqueue(new[]
             {
                 new KeyValuePair<string, string>("ContentType", LogModelContentType),
                 new KeyValuePair<string, string>("Message", model.Message),

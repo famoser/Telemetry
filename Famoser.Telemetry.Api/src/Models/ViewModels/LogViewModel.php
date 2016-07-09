@@ -68,6 +68,11 @@ class LogViewModel extends BaseViewModel
         return $this->log->message;
     }
 
+    public function getShortMessage()
+    {
+        return substr($this->log->message, 0, 12);
+    }
+
     public function getLocation()
     {
         return $this->log->location;

@@ -39,7 +39,7 @@ class EventViewModel extends BaseViewModel
         return $this->formatDateTime($this->event->create_date);
     }
 
-    public function getEvent()
+    public function getName()
     {
         return $this->event->event_id;
     }

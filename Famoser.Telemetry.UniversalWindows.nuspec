@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Famoser.Telemetry.UniversalWindows</id>
+        <version>1.0.0</version>
+        <authors>Florian Moser</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>This packages enables colelction of telemetry data with the LogHelper from the Famoser.FrameworkEssentials package.</description>
+        <releaseNotes>initial release</releaseNotes>
+		<dependencies>
+			<dependency id="Famoser.FrameworkEssentials" version="2.6.4" />
+		</dependencies>
+    </metadata>
+    <files>
+        <file src="Famoser.Telemetry.UniversalWindows\bin\Release\Famoser.Telemetry.UniversalWindows.dll" target="lib\uap10.0\Famoser.Telemetry.UniversalWindows.dll" />
+    </files>
+</package>

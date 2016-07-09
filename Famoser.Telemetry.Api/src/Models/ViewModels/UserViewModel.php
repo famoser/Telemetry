@@ -29,7 +29,7 @@ class UserViewModel extends BaseViewModel
 
     public function getName()
     {
-        return $this->user->device_name . " (" . $this->user->guid . " )";
+        return substr($this->user->device_name, 0, 12) . " (" . substr($this->user->guid, 0, 5) . ")";
     }
 
     public function getDate()

@@ -11,11 +11,12 @@ namespace Famoser.Telemetry.UniversalWindows.Test
     public class ApiTests
     {
         private const string TestApplicationId = "29685dba-b863-4538-9127-2b4612034fdc";
+        private const string TestUri = "https://api.telemetry.famoser.ch/1.0/submit";
         private const string UserId = "11";
         [TestMethod]
         public void TestInitialisation()
         {
-            FamoserTelemetry.Initialize(TestApplicationId);
+            FamoserTelemetry.Initialize(TestUri, TestApplicationId);
         }
 
         [TestMethod]
@@ -29,8 +30,9 @@ namespace Famoser.Telemetry.UniversalWindows.Test
                 new KeyValuePair<string, string>("ApplicationId", TestApplicationId),
                 new KeyValuePair<string, string>("UserId", UserId),
                 new KeyValuePair<string, string>("ContentType", "event"),
-                new KeyValuePair<string, string>("Content", "testApi")
+                new KeyValuePair<string, string>("Event", "testApi")
             });
+            var resp = await res.GetResponseAsStringAsync();
             Assert.IsTrue(res.IsRequestSuccessfull);
         }
 

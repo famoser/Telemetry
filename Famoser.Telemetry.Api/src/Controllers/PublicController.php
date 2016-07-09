@@ -45,7 +45,7 @@ class PublicController extends BaseController
         $application = $this->getDatabaseHelper()->getSingleFromDatabase(new Application(), "id = :id", array("id" => $args["id"]));
         $viewArgs["application"] = new ApplicationViewModel($application);
 
-        $users = $this->getDatabaseHelper()->getFromDatabase(new User(), "application_id = :application_id", array("application_id" => $application->id));
+        $users = $this->getDatabaseHelper()->getFromDatabase(new User(), "application_id = :application_id", array("application_id" => $application->guid));
         $userViewModels = array();
         $guids = array();
         foreach ($users as $user) {
@@ -69,5 +69,44 @@ class PublicController extends BaseController
         $viewArgs["logs"] = $logViewModels;
 
         return $this->renderTemplate($response, "application", $viewArgs);
+    }
+
+    public function log(Request $request, Response $response, $args)
+    {
+        $viewArgs = array();
+        $log = $this->getDatabaseHelper()->getSingleFromDatabase(new Log(), "id = :id", array("id" => $args["id"]));
+        $user = $this->getDatabaseHelper()->getSingleFromDatabase(new User(), "guid = :guid", array("guid" => $log->user_guid));
+        $application = $this->getDatabaseHelper()->getSingleFromDatabase(new Application(), "guid = :guid", array("guid" => $user->application_id));
+        $userViewModel = new UserViewModel($user);
+        $viewArgs["log"] = new LogViewModel($log, $userViewModel);
+        $viewArgs["application"] = new ApplicationViewModel($application);
+        $viewArgs["user"] = $userViewModel;
+        return $this->renderTemplate($response, "log", $viewArgs);
+    }
+
+    public function user(Request $request, Response $response, $args)
+    {
+        $viewArgs = array();
+        $user = $this->getDatabaseHelper()->getSingleFromDatabase(new User(), "id = :id", array("id" => $args["id"]));
+        $viewArgs["user"] = new UserViewModel($user);
+
+        $application = $this->getDatabaseHelper()->getSingleFromDatabase(new Application(), "guid = :application_id", array("application_id" => $user->application_id));
+        $viewArgs["application"] = new ApplicationViewModel($application);
+
+        $events = $this->getDatabaseHelper()->getFromDatabase(new Event(), "user_guid = :user_guid", array("user_guid" => $user->guid), "create_date DESC", 20);
+        $eventViewModels = array();
+        foreach ($events as $event) {
+            $eventViewModels[] = new EventViewModel($event, $viewArgs["user"]);
+        }
+        $viewArgs["events"] = $eventViewModels;
+
+        $logs = $this->getDatabaseHelper()->getFromDatabase(new Log(), "user_guid = :user_guid", array("user_guid" => $user->guid), "create_date DESC", 20);
+        $logViewModels = array();
+        foreach ($logs as $log) {
+            $logViewModels[] = new LogViewModel($log, $viewArgs["user"]);
+        }
+        $viewArgs["logs"] = $logViewModels;
+
+        return $this->renderTemplate($response, "user", $viewArgs);
     }
 }

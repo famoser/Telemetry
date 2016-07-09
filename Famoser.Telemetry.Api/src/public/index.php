@@ -104,6 +104,8 @@ $routes = function () use ($controllerNamespace) {
     $this->post('/submit', $controllerNamespace . 'SubmitController:submit')->setName("submit");
     $this->get('/', $controllerNamespace . 'PublicController:index')->setName("index");
     $this->get('/view/{id}', $controllerNamespace . 'PublicController:application')->setName("application_view");
+    $this->get('/user/{id}', $controllerNamespace . 'PublicController:user')->setName("user_view");
+    $this->get('/log/{id}', $controllerNamespace . 'PublicController:log')->setName("log_view");
 };
 
 $app->group("/1.0", $routes);

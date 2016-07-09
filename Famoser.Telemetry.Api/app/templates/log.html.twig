@@ -1,0 +1,29 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <header>
+        <p><a href="{{  path_for('application_view', {'id': application.getId}) }}" >back</a></p>
+        <h1>Telemetry by {{ user.getName }}</h1>
+        <hr/>
+        <h2>Message</h2>
+        <div class="container">
+            <p>{{ log.getMessage }}</p>
+        </div>
+        <hr/>
+        <h2>Location</h2>
+        <div class="container">
+            <p>{{ log.getLocation }}</p>
+        </div>
+        <hr/>
+        <h2>LogType</h2>
+        <div class="container">
+            <p>{{ log.getLogType }}</p>
+        </div>
+        <hr/>
+        <h2>Date</h2>
+        <div class="container">
+            <p>{{ log.getDate }}</p>
+        </div>
+
+    </header>
+{% endblock %}

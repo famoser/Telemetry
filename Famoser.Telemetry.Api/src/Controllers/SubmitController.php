@@ -31,12 +31,16 @@ class SubmitController extends BaseController
         if ($contentType == ContentTypes::UserInfoContentType) {
             if (!$this->isWellDefined($_POST, array("DeviceName", "SystemName", "MetaData")))
                 return $this->returnApiError(ApiErrorTypes::NotWellDefined, $response);
-            $user = new User();
-            $user->create_date = time();
+
+            $user = $this->getDatabaseHelper()->getSingleFromDatabase(new User(), "guid = :guid", array("guid" => $userId));
+            if ($user == null) {
+                $user = new User();
+                $user->create_date = time();
+                $user->guid = $userId;
+            }
             $user->device_name = $_POST["DeviceName"];
             $user->system_name = $_POST["SystemName"];
             $user->meta_data = $_POST["MetaData"];
-            $user->guid = $userId;
             $user->application_id = $applicationId;
             if (!$this->getDatabaseHelper()->saveToDatabase($user))
                 return $this->returnApiError(ApiErrorTypes::DatabaseFailure, $response);
@@ -45,11 +49,11 @@ class SubmitController extends BaseController
         } else if ($contentType == ContentTypes::EventContentType) {
             if (!$this->isWellDefined($_POST, array("Event")))
                 return $this->returnApiError(ApiErrorTypes::NotWellDefined, $response);
-            $user = new Event();
-            $user->create_date = time();
-            $user->user_guid = $userId;
-            $user->event_id = $_POST["Event"];
-            if (!$this->getDatabaseHelper()->saveToDatabase($user))
+            $event = new Event();
+            $event->create_date = time();
+            $event->user_guid = $userId;
+            $event->event_id = $_POST["Event"];
+            if (!$this->getDatabaseHelper()->saveToDatabase($event))
                 return $this->returnApiError(ApiErrorTypes::DatabaseFailure, $response);
 
             return $this->returnApiSuccess($response);
@@ -58,13 +62,13 @@ class SubmitController extends BaseController
             if (!$this->isWellDefined($_POST, array("Message", "LogLevel", "Location")))
                 return $this->returnApiError(ApiErrorTypes::NotWellDefined, $response);
 
-            $user = new Log();
-            $user->create_date = time();
-            $user->user_guid = $userId;
-            $user->location = $_POST["Location"];
-            $user->log_level = $_POST["LogLevel"];
-            $user->message = $_POST["Message"];
-            if (!$this->getDatabaseHelper()->saveToDatabase($user))
+            $log = new Log();
+            $log->create_date = time();
+            $log->user_guid = $userId;
+            $log->location = $_POST["Location"];
+            $log->log_level = $_POST["LogLevel"];
+            $log->message = $_POST["Message"];
+            if (!$this->getDatabaseHelper()->saveToDatabase($log))
                 return $this->returnApiError(ApiErrorTypes::DatabaseFailure, $response);
 
             return $this->returnApiSuccess($response);
