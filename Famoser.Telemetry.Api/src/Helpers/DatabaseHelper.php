@@ -177,7 +177,6 @@ class DatabaseHelper
             $variables[] = ":" . $property . $i;
         }
         $where .= $property . (($invertIn) ? " NOT" : "") . " IN (" . implode(",", $variables) . ")";
-        var_dump($where);
         $sql = $this->createQuery($entity, $where, $parameters, $orderBy, $limit);
         $res = $this->executeAndFetch($entity, $sql, $parameters);
         return $res;

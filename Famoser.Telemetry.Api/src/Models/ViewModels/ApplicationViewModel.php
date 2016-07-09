@@ -44,9 +44,9 @@ class ApplicationViewModel extends BaseViewModel
         return $this->application->projectUrl;
     }
 
-    public function getUnhandledLogs()
+    public function getGuid()
     {
-        return $this->application->description;
+        return $this->application->guid;
     }
 
     /**
