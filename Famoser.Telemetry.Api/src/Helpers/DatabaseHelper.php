@@ -9,11 +9,10 @@
 namespace Famoser\MassPass\Helpers;
 
 
-use Famoser\MassPass\Models\Entities\AuthorizationCode;
+use Famoser\MassPass\Models\Entities\Application;
 use Famoser\MassPass\Models\Entities\Base\BaseEntity;
-use Famoser\MassPass\Models\Entities\Content;
-use Famoser\MassPass\Models\Entities\ContentHistory;
-use Famoser\MassPass\Models\Entities\Device;
+use Famoser\MassPass\Models\Entities\Event;
+use Famoser\MassPass\Models\Entities\Log;
 use Famoser\MassPass\Models\Entities\User;
 use Interop\Container\ContainerInterface;
 use PDO;
@@ -50,17 +49,24 @@ class DatabaseHelper
         return $pdo;
     }
 
-    private function executeScripts(PDO $connection, $scriptsPath)
+    private function executeScripts(PDO $connection, $scriptsPath, $executeBefore = null)
     {
+        if ($executeBefore != null) {
+            $connection->query($executeBefore);
+        }
         $files = scandir($scriptsPath);
         foreach ($files as $file) {
             if (substr($file, -3) == "sql") {
                 $queries = file_get_contents($scriptsPath . "/" . $file);
-                $queryArray = explode(";", $queries);
-                foreach ($queryArray as $item) {
-                    if (trim($item) != "") {
-                        $connection->query($item);
+                if (strpos($queries, ";") > 0) {
+                    $queryArray = explode(";", $queries);
+                    foreach ($queryArray as $item) {
+                        if (trim($item) != "") {
+                            $connection->query($item);
+                        }
                     }
+                } else {
+                    $connection->query($queries);
                 }
             }
         }
@@ -75,26 +81,32 @@ class DatabaseHelper
 
     public function initializeDatabase()
     {
-        $activePath = $this->container["settings"]["data_path"] . "/" . $this->container['settings']['db'][DatabaseHelper::$activePathKey];
-
         $tempFilePath = $this->container["settings"]["data_path"] . "/.db_created";
         if (!file_exists($tempFilePath)) {
-
-            $testPath = $this->container["settings"]["data_path"] . "/" . $this->container['settings']['db']['test_path'];
-            $prodPath = $this->container["settings"]["data_path"] . "/" . $this->container['settings']['db']["path"];
-
-            $scriptsPath = $this->container["settings"]["asset_path"] . "/sql/initialize";
-
-            if (!file_exists($testPath))
-                $this->executeScripts($this->constructPdo($testPath), $scriptsPath);
-            if (!file_exists($prodPath))
-                $this->executeScripts($this->constructPdo($prodPath), $scriptsPath);
-
+            $this->initializeScriptsFolder("/sql/initialize");
             file_put_contents($tempFilePath, time());
         }
 
+        $tempFilePath = $this->container["settings"]["data_path"] . "/.db_updated";
+        if (!file_exists($tempFilePath)) {
+            $this->initializeScriptsFolder("/sql/applications", "DELETE FROM applications");
+            file_put_contents($tempFilePath, time());
+        }
+
+        $activePath = $this->container["settings"]["data_path"] . "/" . $this->container['settings']['db'][DatabaseHelper::$activePathKey];
         $this->database = $this->constructPdo($activePath);
         return true;
+    }
+
+    private function initializeScriptsFolder($path, $executeBefore = null)
+    {
+        $testPath = $this->container["settings"]["data_path"] . "/" . $this->container['settings']['db']['test_path'];
+        $prodPath = $this->container["settings"]["data_path"] . "/" . $this->container['settings']['db']["path"];
+
+        $scriptsPath = $this->container["settings"]["asset_path"] . $path;
+
+        $this->executeScripts($this->constructPdo($testPath), $scriptsPath, $executeBefore);
+        $this->executeScripts($this->constructPdo($prodPath), $scriptsPath, $executeBefore);
     }
 
     private function createQuery(BaseEntity $entity, $where = null, $parameters = null, $orderBy = null, $limit = 1000)
@@ -131,7 +143,7 @@ class DatabaseHelper
      * @param null $parameters
      * @param null $orderBy
      * @param int $limit
-     * @return AuthorizationCode[]|Content[]|ContentHistory[]|Device[]|User[]|bool
+     * @return User[]|Application[]|Event[]|Log[]|bool
      */
     public function getFromDatabase(BaseEntity $entity, $where = null, $parameters = null, $orderBy = null, $limit = 1000)
     {
@@ -149,7 +161,7 @@ class DatabaseHelper
      * @param null $parameters
      * @param null $orderBy
      * @param int $limit
-     * @return AuthorizationCode[]|Content[]|ContentHistory[]|Device[]|User[]|bool
+     * @return User[]|Application[]|Event[]|Log[]|bool
      */
     public function getWithInFromDatabase(BaseEntity $entity, $property, $values, $invertIn = false, $where = null, $parameters = null, $orderBy = null, $limit = 1000)
     {
@@ -176,7 +188,7 @@ class DatabaseHelper
      * @param null $parameters
      * @param null $orderBy
      * @param int $limit
-     * @return AuthorizationCode|Content|Device|ContentHistory|User|bool
+     * @return Application|Event|Log|User|bool
      */
     public function getSingleFromDatabase(BaseEntity $entity, $where = null, $parameters = null, $orderBy = null, $limit = 1000)
     {

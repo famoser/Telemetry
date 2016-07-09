@@ -10,7 +10,7 @@ namespace Famoser.Telemetry.UniversalWindows
 {
     public class FamoserTelemetry
     {
-        private static string _url = "https://telemetry.famoser.ch/1.0/submit";
+        private static string _url = "https://api.telemetry.famoser.ch/1.0/submit";
 
         public static void Initialize(string applicationId)
         {

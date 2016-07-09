@@ -2,9 +2,14 @@
 
 {% block content %}
     <header>
-        <hr />
-        <p> the image with your MassPass application to connect to this API</p>
-        <hr />
+        <h1>Telemetry for my Applications</h1>
+        <hr/>
+        {% for application in applications %}
+            <h2><a href="{{ path_for('application_view', {'id': application.getId}) }}">{{ application.getName }}</a></h2>
+            <hr/>
+        {% else %}
+            No applications have been found.
+        {% endfor %}
     </header>
 
     <footer>

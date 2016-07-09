@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="hostpoint.ch">
+  <component name="PublishConfigData" autoUpload="Always" serverName="hostpoint">
     <serverData>
-      <paths name="hostpoint.ch">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/www/apis/api.telemetry.famoser.ch" local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="kirppenstellen">
+      <paths name="froburger">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="krippenstellen hostpoint">
+      <paths name="hostpoint">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/www/apis/api.telemetry.famoser.ch" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="jkweb -rap.ch">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="knabenkantorei">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />

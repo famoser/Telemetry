@@ -22,7 +22,7 @@ namespace Famoser.Telemetry.UniversalWindows.Test
         public async Task TestSubmission()
         {
             var service = new RestService();
-            var res = await service.PostAsync(new Uri("https://telemetry.famoser.ch/1.0/submit"), new[]
+            var res = await service.PostAsync(new Uri("https://api.telemetry.famoser.ch/1.0/submit"), new[]
             {
                 new KeyValuePair<string, string>(),
                 new KeyValuePair<string, string>("Version", "1"),

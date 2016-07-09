@@ -19,7 +19,7 @@ class ApiErrorTypes
     const ApiVersionInvalid = 100;
 
 //[Description("Json request could not be deserialized")]
-    const RequestJsonFailure = 101;
+    const RequestFailure = 101;
 
 //[Description("Request could not be processed by the server. This is probably a API error, nothing you can do about it :/")]
     const ServerFailure = 102;
@@ -37,36 +37,6 @@ class ApiErrorTypes
     const DatabaseFailure = 106;
     #endregion
 
-    #region general errors
-//[Description("Your device is unknown to the API")]
-    const NotAuthorized = 1000;
-
-//[Description("Your device was unauthorized")]
-    const Unauthorized = 1001;
-    #endregion
-
-    #region AuthorisationRequest
-//[Description("Your athorization code is invalid")]
-    const AuthorizationCodeInvalid = 2000;
-    #endregion
-
-    #region UnAuthorisationRequest
-//[Description("The device to unauthorize could not be found")]
-    const DeviceNotFound = 3000;
-    #endregion
-
-    #region AuthorizedDevicesRequst
-//[Description("No authorized devices could be found")]
-    const NoDevicesFound = 4000;
-    #endregion
-
-    #region ReadContentEntityRequest
-//[Description("Content not found")]
-    const ContentNotFound = 5000;
-    #endregion
-
-    #region UpdateRequest
-//[Description("Submitted Version is not newest one")]
-    const InvalidVersionId = 6000;
-    #endregion
+//[Description("This Content Type is unknown")]
+    const UnknownContentType = 1001;
 }

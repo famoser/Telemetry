@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: famoser
- * Date: 23/05/2016
- * Time: 21:17
+ * User: Florian Moser
+ * Date: 09.07.2016
+ * Time: 12:33
  */
 
 namespace Famoser\MassPass\Models\Entities;
@@ -11,15 +11,15 @@ namespace Famoser\MassPass\Models\Entities;
 
 use Famoser\MassPass\Models\Entities\Base\BaseEntity;
 
-class Content extends BaseEntity
+class Application extends BaseEntity
 {
     public $guid;
-    public $user_id;
-    public $relation_id;
-    public $version_id;
+    public $name;
+    public $description;
+    public $projectUrl;
 
     public function getTableName()
     {
-        return "content";
+        return "applications";
     }
 }

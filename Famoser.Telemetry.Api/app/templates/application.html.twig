@@ -1,0 +1,76 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <header>
+        <h1>Telemetry for {{ application.getName }}</h1>
+        <h2>{{ application.getDescription }}</h2>
+        <hr/>
+        <div class="container">
+            <div class="col-md-4">
+                <p><b>Total users:</b> {{ users.lenght }}</p>
+            </div>
+            <div class="col-md-4">
+                <p><b>Total logs:</b> {{ logs.lenght }}</p>
+            </div>
+            <div class="col-md-4">
+                <p><b>Total events:</b> {{ events.lenght }}</p>
+            </div>
+        </div>
+        <hr/>
+        <h2>Logs</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Log Type</th>
+                <th>Message</th>
+                <th>User</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.getDate }}</td>
+                    <td>{{ log.getLogType }}</td>
+                    <td>{{ log.getMessage }}</td>
+                    <td>
+                        <a href="{{ path_for('user_view', {'id': log.getUserId}) }}">{{ log.getUser }}</a>
+                    </td>
+                </tr>
+            {% else %}
+                No logs have been found.
+            {% endfor %}
+            </tbody>
+        </table>
+        <hr/>
+        <h2>Events</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>User</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for event in events %}
+                <tr>
+                    <td>{{ event.getDate }}</td>
+                    <td>{{ event.getName }}</td>
+                    <td>
+                        <a href="{{ path_for('user_view', {'id': event.getUserId}) }}">{{ application.getUser }}</a>
+                    </td>
+                </tr>
+            {% else %}
+                No events have been found.
+            {% endfor %}
+            </tbody>
+        </table>
+    </header>
+
+    <footer>
+        <ul class="icons">
+            <li><a href="http://famoser.ch" class="fa-link">famoser.ch</a></li>
+        </ul>
+    </footer>
+{% endblock %}

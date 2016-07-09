@@ -97,38 +97,18 @@ $c['view'] = function (Container $c) {
 $controllerNamespace = 'Famoser\MassPass\Controllers\\';
 
 $app = new App($c);
-$app->add(new JsonMiddleware());
-$app->add(new AuthorizationMiddleware());
 $app->add(new ApiVersionMiddleware($c));
-$app->add(new TestsMiddleware($c));
 $app->add(new LoggingMiddleware($c));
 
 $routes = function () use ($controllerNamespace) {
-    $this->group("/authorization", function () use ($controllerNamespace) {
-        $this->post('/authorize', $controllerNamespace . 'AuthorizationController:authorize');
-        $this->post('/status', $controllerNamespace . 'AuthorizationController:status');
-        $this->post('/createauthorization', $controllerNamespace . 'AuthorizationController:createAuthorization');
-        $this->post('/unauthorize', $controllerNamespace . 'AuthorizationController:unAuthorize');
-        $this->post('/authorizeddevices', $controllerNamespace . 'AuthorizationController:authorizedDevices');
-    });
-    $this->group("/actions", function () use ($controllerNamespace) {
-        $this->get('/cleanup', $controllerNamespace . 'ActionsController:cleanup');
-        $this->get('/setup', $controllerNamespace . 'ActionsController:setup');
-    });
-    $this->group("/sync", function () use ($controllerNamespace) {
-        $this->post('/refresh', $controllerNamespace . 'SyncController:refresh');
-        $this->post('/update', $controllerNamespace . 'SyncController:update');
-        $this->post('/readcontententity', $controllerNamespace . 'SyncController:readContentEntity');
-        $this->post('/readcollectionentries', $controllerNamespace . 'SyncController:readCollectionEntries');
-        $this->post('/gethistory', $controllerNamespace . 'SyncController:getHistory');
-    });
+    $this->post('/submit', $controllerNamespace . 'SubmitController:submit')->setName("submit");
+    $this->get('/', $controllerNamespace . 'PublicController:index')->setName("index");
+    $this->get('/view/{id}', $controllerNamespace . 'PublicController:application')->setName("application_view");
 };
 
-
-$app->group("/tests/1.0", $routes);
 $app->group("/1.0", $routes);
 
-$app->get("/1.0/", $controllerNamespace . 'PublicController:index');
-$app->post("/1.0/", $controllerNamespace . 'PublicController:indexAsJson');
+
+
 
 $app->run();

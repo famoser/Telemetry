@@ -10,6 +10,14 @@ namespace Famoser\MassPass\Controllers;
 
 
 use Famoser\MassPass\Models\ApiConfiguration;
+use Famoser\MassPass\Models\Entities\Application;
+use Famoser\MassPass\Models\Entities\Event;
+use Famoser\MassPass\Models\Entities\Log;
+use Famoser\MassPass\Models\Entities\User;
+use Famoser\MassPass\Models\ViewModels\ApplicationViewModel;
+use Famoser\MassPass\Models\ViewModels\EventViewModel;
+use Famoser\MassPass\Models\ViewModels\LogViewModel;
+use Famoser\MassPass\Models\ViewModels\UserViewModel;
 use PHPQRCode\Constants;
 use PHPQRCode\QRcode;
 use Slim\Http\Request;
@@ -19,34 +27,47 @@ class PublicController extends BaseController
 {
     public function index(Request $request, Response $response, $args)
     {
-        $this->createImageIfNecessary();
-        return $this->renderTemplate($response, "index", $args);
-    }
-
-    public function indexAsJson(Request $request, Response $response, $args)
-    {
-        $infos = $this->getApiInformations();
-        return $response->withJson($infos);
-    }
-
-    private function getApiInformations()
-    {
-        $apiConfig = new ApiConfiguration();
-        $apiConfig->GenerationKeyInterations = 10000;
-        $apiConfig->Uri = "https://api.masspass.famoser.ch";
-        $apiConfig->Version = 1;
-        $apiConfig->InitialisationVector = [129, 104, 236, 64, 22, 129, 76, 125, 122, 223, 214, 33, 238, 180, 218, 126]; // generate 16 here: https://www.random.org/cgi-bin/randbyte?nbytes=16&format=d
-        $apiConfig->GenerationKeyLenghtInBytes = 32;
-        $apiConfig->GenerationSalt = [136, 249, 54, 92, 129, 200, 62, 128, 178, 33, 220, 177, 148, 172, 180, 223, 10, 113, 167, 206, 97, 163, 45, 228]; //generate 24 here: https://www.random.org/cgi-bin/randbyte?nbytes=24&format=d
-        return $apiConfig;
-    }
-
-    private function createImageIfNecessary()
-    {
-        $imgPath = $this->container->get("settings")["public_path"] . '/images/apiInfos.png';
-        if (!file_exists($imgPath)) {
-            $qrContent = json_encode($this->getApiInformations());
-            QRcode::png($qrContent, $imgPath, Constants::QR_ECLEVEL_M, 10, 1);
+        $viewArgs = array();
+        $application = $this->getDatabaseHelper()->getFromDatabase(new Application(), null, null, "name");
+        $applicationViewModels = array();
+        foreach ($application as $item) {
+            if ($item->id != 0)
+                $applicationViewModels[] = new ApplicationViewModel($item);
         }
+        $viewArgs["applications"] = $applicationViewModels;
+
+        return $this->renderTemplate($response, "index", $viewArgs);
+    }
+
+    public function application(Request $request, Response $response, $args)
+    {
+        $viewArgs = array();
+        $application = $this->getDatabaseHelper()->getSingleFromDatabase(new Application(), "id = :id", array("id" => $args["id"]));
+        $viewArgs["application"] = new ApplicationViewModel($application);
+
+        $users = $this->getDatabaseHelper()->getFromDatabase(new User(), "application_id = :application_id", array("application_id" => $application->id));
+        $userViewModels = array();
+        $guids = array();
+        foreach ($users as $user) {
+            $userViewModels[$user->guid] = new UserViewModel($user);
+            $guids[] = $user->guid;
+        }
+        $viewArgs["users"] = $userViewModels;
+
+        $events = $this->getDatabaseHelper()->getWithInFromDatabase(new Event(), "user_guid", $guids, false, null, null, "create_date DESC", 20);
+        $eventViewModels = array();
+        foreach ($events as $event) {
+            $eventViewModels[] = new EventViewModel($event, $userViewModels[$event->user_guid]);
+        }
+        $viewArgs["events"] = $eventViewModels;
+
+        $logs = $this->getDatabaseHelper()->getWithInFromDatabase(new Log(), "user_guid", $guids, false, null, null, "create_date DESC", 20);
+        $logViewModels = array();
+        foreach ($logs as $log) {
+            $logViewModels[] = new LogViewModel($log, $userViewModels[$log->user_guid]);
+        }
+        $viewArgs["logs"] = $logViewModels;
+
+        return $this->renderTemplate($response, "application", $viewArgs);
     }
 }
