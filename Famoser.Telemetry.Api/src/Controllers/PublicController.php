@@ -44,6 +44,9 @@ class PublicController extends BaseController
         $viewArgs = array();
         $application = $this->getDatabaseHelper()->getSingleFromDatabase(new Application(), "id = :id", array("id" => $args["id"]));
         $viewArgs["application"] = new ApplicationViewModel($application);
+        $DayTime = time() - 24 * 60 * 60;
+        $WeekTime = time() - 24 * 60 * 60 * 7;
+        $MonthTime = time() - 24 * 60 * 60 * 30;
 
         $users = $this->getDatabaseHelper()->getFromDatabase(new User(), "application_id = :application_id", array("application_id" => $application->guid));
         $userViewModels = array();
@@ -53,6 +56,22 @@ class PublicController extends BaseController
             $guids[] = $user->guid;
         }
         $viewArgs["users"] = $userViewModels;
+        $viewArgs["users_count"] = count($userViewModels);
+        $viewArgs["users_count_day"] = $this->getDatabaseHelper()->countFromDatabase(
+            new User(),
+            "application_id = :application_id AND create_date > :create_date",
+            array("application_id" => $application->guid, "create_date" => $DayTime)
+        );
+        $viewArgs["users_count_week"] = $this->getDatabaseHelper()->countFromDatabase(
+            new User(),
+            "application_id = :application_id AND create_date > :create_date",
+            array("application_id" => $application->guid, "create_date" => $WeekTime)
+        );
+        $viewArgs["users_count_month"] = $this->getDatabaseHelper()->countFromDatabase(
+            new User(),
+            "application_id = :application_id AND create_date > :create_date",
+            array("application_id" => $application->guid, "create_date" => $MonthTime)
+        );
 
         $events = $this->getDatabaseHelper()->getWithInFromDatabase(new Event(), "user_guid", $guids, false, null, null, "create_date DESC", 20);
         $eventViewModels = array();
@@ -60,6 +79,22 @@ class PublicController extends BaseController
             $eventViewModels[] = new EventViewModel($event, $userViewModels[$event->user_guid]);
         }
         $viewArgs["events"] = $eventViewModels;
+        $viewArgs["events_count"] = $this->getDatabaseHelper()->countWithInFromDatabase(new Event(), "user_guid", $guids, false, null, null, "create_date DESC", 200000);
+        $viewArgs["events_count_day"] = $this->getDatabaseHelper()->countWithInFromDatabase(
+            new Event(), "user_guid", $guids, false,
+            "create_date > :create_date",
+            array("create_date" => $DayTime), "create_date DESC", 200000
+        );
+        $viewArgs["events_count_week"] = $this->getDatabaseHelper()->countWithInFromDatabase(
+            new Event(), "user_guid", $guids, false,
+            "create_date > :create_date",
+            array("create_date" => $WeekTime), "create_date DESC", 200000
+        );
+        $viewArgs["events_count_month"] = $this->getDatabaseHelper()->countWithInFromDatabase(
+            new Event(), "user_guid", $guids, false,
+            "create_date > :create_date",
+            array("create_date" => $MonthTime), "create_date DESC", 200000
+        );
 
         $logs = $this->getDatabaseHelper()->getWithInFromDatabase(new Log(), "user_guid", $guids, false, null, null, "create_date DESC", 20);
         $logViewModels = array();
@@ -67,6 +102,22 @@ class PublicController extends BaseController
             $logViewModels[] = new LogViewModel($log, $userViewModels[$log->user_guid]);
         }
         $viewArgs["logs"] = $logViewModels;
+        $viewArgs["logs_count"] = $this->getDatabaseHelper()->countWithInFromDatabase(new Log(), "user_guid", $guids, false, null, null, "create_date DESC", 2000000);
+        $viewArgs["logs_count_day"] = $this->getDatabaseHelper()->countWithInFromDatabase(
+            new Log(), "user_guid", $guids, false,
+            "create_date > :create_date",
+            array("create_date" => $DayTime), "create_date DESC", 2000000
+        );
+        $viewArgs["logs_count_week"] = $this->getDatabaseHelper()->countWithInFromDatabase(
+            new Log(), "user_guid", $guids, false,
+            "create_date > :create_date",
+            array("create_date" => $WeekTime), "create_date DESC", 2000000
+        );
+        $viewArgs["logs_count_month"] = $this->getDatabaseHelper()->countWithInFromDatabase(
+            new Log(), "user_guid", $guids, false,
+            "create_date > :create_date",
+            array("create_date" => $MonthTime), "create_date DESC", 2000000
+        );
 
         return $this->renderTemplate($response, "application", $viewArgs);
     }

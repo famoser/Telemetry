@@ -2,23 +2,16 @@
 
 {% block content %}
     <header>
-        <p><a href="{{  path_for('index') }}" >back</a></p>
+        <p><a href="{{ path_for('index') }}">back</a></p>
         <h1>Telemetry for {{ application.getName }}</h1>
         <h2>{{ application.getDescription }}</h2>
         <p><a href="{{ application.getProjectUrl }}">{{ application.getProjectUrl }}</a></p>
         <hr/>
         <h2>Stats</h2>
-        <div class="container">
-            <div class="col-md-4">
-                <p><b>Total users:</b> {{ users|length }}</p>
-            </div>
-            <div class="col-md-4">
-                <p><b>Total logs:</b> {{ logs|length }}</p>
-            </div>
-            <div class="col-md-4">
-                <p><b>Total events:</b> {{ events|length }}</p>
-            </div>
-        </div>
+        <p><b>Total:</b> {{ users_count }} users | {{ logs_count }} logs | {{ events_count }} events </p>
+        <p><b>Daily:</b> {{ users_count_day }} users | {{ logs_count_day }} logs | {{ events_count_day }} events </p>
+        <p><b>Weekly:</b> {{ users_count_week }} users | {{ logs_count_week }} logs | {{ events_count_week }} events </p>
+        <p><b>Monthly:</b> {{ users_count_month }} users | {{ logs_count_week }} logs | {{ events_count_week }} events </p>
         <hr/>
         <h2>Logs</h2>
         <table class="table">
@@ -69,7 +62,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <hr />
+        <hr/>
         <p class="small">{{ application.getGuid }}</p>
     </header>
 {% endblock %}

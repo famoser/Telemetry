@@ -109,9 +109,9 @@ class DatabaseHelper
         $this->executeScripts($this->constructPdo($prodPath), $scriptsPath, $executeBefore);
     }
 
-    private function createQuery(BaseEntity $entity, $where = null, $parameters = null, $orderBy = null, $limit = 1000)
+    private function createQuery(BaseEntity $entity, $where = null, $parameters = null, $orderBy = null, $limit = 1000, $select = "*")
     {
-        $sql = "SELECT * FROM " . $entity->getTableName();
+        $sql = "SELECT ".$select." FROM " . $entity->getTableName();
         if ($where != null) {
             $sql .= " WHERE " . $where;
         }
@@ -137,6 +137,21 @@ class DatabaseHelper
         return null;
     }
 
+    private function executeAndCount(BaseEntity $entity, $sql, $parameters)
+    {
+        try {
+            LogHelper::log($sql . "     " . json_encode($parameters), "DatabaseHelper" . uniqid() . ".txt");
+            $request = $this->getConnection()->prepare($sql);
+            if (!$request->execute($parameters)) {
+                return false;
+            }
+            return $request->fetchAll(PDO::FETCH_NUM)[0][0];
+        } catch (\Exception $ex) {
+            LogHelper::log($ex->getMessage() . "     " . $ex->getTraceAsString() . "     " . $sql . "     " . json_encode($parameters), "DatabaseHelper.txt");
+        }
+        return 0;
+    }
+
     /**
      * @param BaseEntity $entity
      * @param null $where
@@ -149,6 +164,21 @@ class DatabaseHelper
     {
         $sql = $this->createQuery($entity, $where, $parameters, $orderBy, $limit);
         $res = $this->executeAndFetch($entity, $sql, $parameters);
+        return $res;
+    }
+
+    /**
+     * @param BaseEntity $entity
+     * @param null $where
+     * @param null $parameters
+     * @param null $orderBy
+     * @param int $limit
+     * @return User[]|Application[]|Event[]|Log[]|bool
+     */
+    public function countFromDatabase(BaseEntity $entity, $where = null, $parameters = null, $orderBy = null, $limit = 1000)
+    {
+        $sql = $this->createQuery($entity, $where, $parameters, $orderBy, $limit, "COUNT(*)");
+        $res = $this->executeAndCount($entity, $sql, $parameters);
         return $res;
     }
 
@@ -179,6 +209,36 @@ class DatabaseHelper
         $where .= $property . (($invertIn) ? " NOT" : "") . " IN (" . implode(",", $variables) . ")";
         $sql = $this->createQuery($entity, $where, $parameters, $orderBy, $limit);
         $res = $this->executeAndFetch($entity, $sql, $parameters);
+        return $res;
+    }
+
+    /**
+     * @param BaseEntity $entity
+     * @param string $property
+     * @param mixed[] $values
+     * @param bool $invertIn
+     * @param null $where
+     * @param null $parameters
+     * @param null $orderBy
+     * @param int $limit
+     * @return User[]|Application[]|Event[]|Log[]|bool
+     */
+    public function countWithInFromDatabase(BaseEntity $entity, $property, $values, $invertIn = false, $where = null, $parameters = null, $orderBy = null, $limit = 1000)
+    {
+        if ($parameters == null)
+            $parameters = [];
+        if ($where == null)
+            $where = " ";
+        else
+            $where .= " AND ";
+        $variables = [];
+        for ($i = 0; $i < count($values); $i++) {
+            $parameters[":" . $property . $i] = $values[$i];
+            $variables[] = ":" . $property . $i;
+        }
+        $where .= $property . (($invertIn) ? " NOT" : "") . " IN (" . implode(",", $variables) . ")";
+        $sql = $this->createQuery($entity, $where, $parameters, $orderBy, $limit, "COUNT(*)");
+        $res = $this->executeAndCount($entity, $sql, $parameters);
         return $res;
     }
 
